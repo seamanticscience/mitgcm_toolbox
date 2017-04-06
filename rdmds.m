@@ -1,4 +1,4 @@
-function [AA,iters] = rdmds(fnamearg,varargin)
+function [AA,iters,MM] = rdmds(fnamearg,varargin)
 % RDMDS  Read MITgcmUV meta/data files
 %
 % A = RDMDS(FNAME)
@@ -6,12 +6,12 @@ function [AA,iters] = rdmds(fnamearg,varargin)
 % A = RDMDS(FNAME,[ITER1 ITER2 ...])
 % A = RDMDS(FNAME,NaN)
 % A = RDMDS(FNAME,Inf)
-% [A,ITS] = RDMDS(FNAME,[...])
+% [A,ITS,M] = RDMDS(FNAME,[...])
 % A = RDMDS(FNAME,[...],'rec',RECNUM)
 %
 %   A = RDMDS(FNAME) reads data described by meta/data file format.
 %   FNAME is a string containing the "head" of the file names.
-%  
+%
 %   eg. To load the meta-data files
 %       T.0000002880.000.000.meta, T.0000002880.000.000.data
 %       T.0000002880.001.000.meta, T.0000002880.001.000.data
@@ -27,8 +27,8 @@ function [AA,iters] = rdmds(fnamearg,varargin)
 %      >> size(A)
 %   ans =
 %      64    32     5    61
-%  
-%  
+%
+%
 %   A = RDMDS(FNAME,ITER) reads data described by meta/data file format.
 %   FNAME is a string containing the "head" of the file name excluding the
 %   10-digit iterartion number.
@@ -50,24 +50,25 @@ function [AA,iters] = rdmds(fnamearg,varargin)
 %
 %   A = RDMDS(FNAME,[...],'rec',RECNUM) reads individual records from
 %   multiple record files.
-%  
+%
 %   eg. To read a single record from a multi-record file
 %      >> [A,IT]=rdmds('pickup.ckptA',11);
 %   eg. To read several records from a multi-record file
 %      >> [A,IT]=rdmds('pickup',Inf,'rec',[1:5 8 12]);
 %
-%  
+%
 %   A = RDMDS(FNAME,ITER,MACHINEFORMAT) allows the machine format to be
 %   A = RDMDS(FNAME,MACHINEFORMAT)
 %   specified which MACHINEFORMAT is on of the following strings:
 %     'n' 'l' 'b' 'd' 'g' 'c' 'a' 's'  - see FOPEN for more details
 %
 
-% $Header: /u/gcmpack/MITgcm/verification/tutorial_global_oce_latlon/diags_matlab/rdmds.m,v 1.3 2006/08/12 20:25:13 jmc Exp $
-% $Name: checkpoint59p $
+% $Header: /u/gcmpack/MITgcm/utils/matlab/rdmds.m,v 1.24 2007/03/22 18:49:18 jmc Exp $
+% $Name:  $
 
 AA=[];
 iters=[];
+MM=[];
 
 % Default options
 ieee='b';
@@ -156,24 +157,76 @@ end
 for j=1:size(allfiles,1);
 
 % Read meta- and data-file
-[A,N] = localrdmds([Dir allfiles(j).name],ieee,recnum);
+[A,N,M,mG] = localrdmds([Dir allfiles(j).name],ieee,recnum);
 
+%- Merge local Meta file content (M) to MM string:
+if j > 0, %- to comment out this block: "if j < 0" (since j is always > 0)
+ ind=findstr(M,' timeStepNumber');
+ if isempty(ind), ind=0;
+ else ind2=ind+min(findstr(M(1+ind:end),'];')); end
+ if iter==1 & j==1,
+  MM=M; ind1=ind; if ind1 > 0, M2=M(ind1:ind2); M3=M(1+ind2:end); end
+ else
+  compar=(ind == ind1);
+  if compar & ind == 0, compar=strcmp(MM,M); end
+  if compar & ind1 > 0, compar=strncmp(MM,M,ind1) ; end
+  if compar & ind1 > 0, compar=strcmp(M3,M(1+ind2:end)); end
+  if ~compar,
+    fprintf('WARNING: Meta file (%s) is different from 1rst one:\n',allfiles(j).name);
+    fprintf(' it=%i :MM:%s\n',iters(1),MM);
+    fprintf(' it=%i :M :%s\n\n',iters(iter),M);
+  elseif ind1 > 0,
+    Mj=M(ind1:ind2); ind=findstr(Mj,'['); Mj=Mj(1+ind:end);
+%   add it-number from Mj to M2 (if different):
+    if isempty(findstr(M2,Mj)), M2=[deblank(M2(1:end-1)),Mj]; end
+%   if isempty(findstr(M2,Mj)), M2=[M2(1:end-1) Mj]; end
+  end
+ end
+%  save modifications:
+ if ind1>0 & j==size(allfiles,1) & iter==size(iters,2), MM=[MM(1:ind1-1),M2,M3]; end
+end
+
+%- put local data file content in global array AA:
 bdims=N(1,:);
 r0=N(2,:);
 rN=N(3,:);
 ndims=prod(size(bdims));
-if     (ndims == 1)
- AA(r0(1):rN(1),iter)=A;
-elseif (ndims == 2)
- AA(r0(1):rN(1),r0(2):rN(2),iter)=A;
-elseif (ndims == 3)
- AA(r0(1):rN(1),r0(2):rN(2),r0(3):rN(3),iter)=A;
-elseif (ndims == 4)
- AA(r0(1):rN(1),r0(2):rN(2),r0(3):rN(3),r0(4):rN(4),iter)=A;
-elseif (ndims == 5)
- AA(r0(1):rN(1),r0(2):rN(2),r0(3):rN(3),r0(4):rN(4),r0(5):rN(5),iter)=A;
+if j==1 & iter==1, AA=zeros([bdims size(iters,2)]); end
+if mG(1)==0 & mG(2)==1,
+  if     (ndims == 1)
+   AA(r0(1):rN(1),iter)=A;
+  elseif (ndims == 2)
+   AA(r0(1):rN(1),r0(2):rN(2),iter)=A;
+  elseif (ndims == 3)
+   AA(r0(1):rN(1),r0(2):rN(2),r0(3):rN(3),iter)=A;
+  elseif (ndims == 4)
+   AA(r0(1):rN(1),r0(2):rN(2),r0(3):rN(3),r0(4):rN(4),iter)=A;
+  elseif (ndims == 5)
+   AA(r0(1):rN(1),r0(2):rN(2),r0(3):rN(3),r0(4):rN(4),r0(5):rN(5),iter)=A;
+  else
+   error('Dimension of data set is larger than currently coded. Sorry!')
+  end
+elseif     (ndims == 1)
+   AA(r0(1):rN(1),iter)=A;
 else
- error('Dimension of data set is larger than currently coded. Sorry!')
+%- to debug: do simple stransfert (with a loop on 2nd index);
+%  will need to change this later, to improve efficiency:
+ for i=0:rN(2)-r0(2),
+  if (ndims == 2)
+   AA(r0(1)+i*mG(1):rN(1)+i*mG(1),r0(2)+i*mG(2),iter)=A(:,1+i);
+  elseif (ndims == 3)
+   AA(r0(1)+i*mG(1):rN(1)+i*mG(1),r0(2)+i*mG(2), ...
+                                    r0(3):rN(3),iter)=A(:,1+i,:);
+  elseif (ndims == 4)
+   AA(r0(1)+i*mG(1):rN(1)+i*mG(1),r0(2)+i*mG(2), ...
+                        r0(3):rN(3),r0(4):rN(4),iter)=A(:,1+i,:,:);
+  elseif (ndims == 5)
+   AA(r0(1)+i*mG(1):rN(1)+i*mG(1),r0(2)+i*mG(2), ...
+            r0(3):rN(3),r0(4):rN(4),r0(5):rN(5),iter)=A(:,1+i,:,:,:);
+  else
+   error('Dimension of data set is larger than currently coded. Sorry!')
+  end
+ end
 end
 
 end % files
@@ -181,10 +234,13 @@ end % iterations
 
 %-------------------------------------------------------------------------------
 
-function [A,N] = localrdmds(fname,ieee,recnum)
+function [A,N,M,map2glob] = localrdmds(fname,ieee,recnum)
 
 mname=strrep(fname,' ','');
 dname=strrep(mname,'.meta','.data');
+
+%- set default mapping from tile to global file:
+map2glob=[0 1];
 
 % Read and interpret Meta file
 fid = fopen(mname,'r');
@@ -207,9 +263,12 @@ while keepgoing > 0,
     line=line(ind(1)+1:end);
   end
 % Remove comments of form //
-  line=[line ' //']; ind=findstr(line,'//'); line=line(1:ind(1)-1);
-% Add to total string
-  allstr=[allstr line];
+  line=[line,' //']; ind=findstr(line,'//'); line=line(1:ind(1)-1);
+% Add to total string (without starting & ending blanks)
+  while line(1:1) == ' ', line=line(2:end); end
+  if strncmp(line,'map2glob',8), eval(line);
+  else allstr=[allstr,deblank(line),' '];
+  end
  end
 end
 
@@ -222,13 +281,17 @@ if size(ind1) ~= size(ind2)
  error('The /* ... */ comments are not properly paired')
 end
 while size(ind1,2) > 0
- allstr=[allstr(1:ind1(1)-1) allstr(ind2(1)+3:end)];
+ allstr=[deblank(allstr(1:ind1(1)-1)) allstr(ind2(1)+2:end)];
+%allstr=[allstr(1:ind1(1)-1) allstr(ind2(1)+3:end)];
  ind1=findstr(allstr,'/*'); ind2=findstr(allstr,'*/');
 end
 
 % This is a kludge to catch whether the meta-file is of the
 % old or new type. nrecords does not exist in the old type.
 nrecords = NaN;
+
+%- store the full string for output:
+M=strrep(allstr,'format','dataprec');
 
 % Everything in lower case
 allstr=lower(allstr);
@@ -240,10 +303,23 @@ allstr=strrep(allstr,'format','dataprec');
 eval(allstr);
 
 N=reshape( dimlist , 3 , prod(size(dimlist))/3 );
+rep=[' dimList = [ ',sprintf('%i ',N(1,:)),']'];
 if ~isnan(nrecords) & nrecords > 1 & isempty(recnum)
  N=[N,[nrecords 1 nrecords]'];
 elseif ~isempty(recnum) & recnum>nrecords
  error('Requested record number is higher than the number of available records')
+end
+
+%- make "dimList" shorter (& fit output array size) in output "M":
+ pat=' dimList = \[(\s*\d+\,?)*\s*\]';
+ M=regexprep(M,pat,rep);
+%  and remove double space within sq.brakets:
+ind1=findstr(M,'['); ind2=findstr(M,']');
+if length(ind1) == length(ind2),
+ for i=length(ind1):-1:1, if ind1(i) < ind2(i),
+  M=[M(1:ind1(i)),regexprep(M(ind1(i)+1:ind2(i)-1),'(\s+)',' '),M(ind2(i):end)];
+ end; end
+else error('The [ ... ] brakets are not properly paired')
 end
 
 if isempty(recnum)

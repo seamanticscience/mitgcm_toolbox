@@ -2,7 +2,7 @@ function h = mit_readfield(fname,dims,accuracy)
 %function h = mit_readfield(fname,dims,accuracy)
   
 % $Header: /u/gcmpack/MITgcm/verification/tutorial_global_oce_latlon/diags_matlab/mit_readfield.m,v 1.3 2006/08/12 20:25:13 jmc Exp $
-% $Name: checkpoint59p $
+% $Name:  $
 
   ieee='ieee-be';
 

@@ -29,10 +29,9 @@ function [AA] = rdmds(fname,varargin)
 %                          byte ordering and 64 bit long data type
 %   'ieee-be.l64' or 's' - IEEE floating point with big-endian byte
 %                          ordering and 64 bit long data type.
-%
 
-% $Header: /u/gcmpack/MITgcm/verification/tutorial_global_oce_latlon/diags_matlab/rdmeta.m,v 1.3 2006/08/12 20:25:13 jmc Exp $
-% $Name: checkpoint59p $
+% $Header: /u/gcmpack/MITgcm/utils/matlab/rdmeta.m,v 1.3 2007/02/17 23:49:43 jmc Exp $
+% $Name:  $
 
 % Default options
 ieee='b';

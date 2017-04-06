@@ -1,95 +1,101 @@
 function y = mit_getparm(fname,pname);
 %function y = mit_getparm(fname,pname);
-  
-% $Header: /u/gcmpack/MITgcm/verification/tutorial_global_oce_latlon/diags_matlab/mit_getparm.m,v 1.3 2006/08/12 20:25:12 jmc Exp $
-% $Name: checkpoint59p $
 
-  y = [];
-  [fp, msg] = fopen(fname,'r');
-  if fp > 0
+% $Header: /u/gcmpack/MITgcm/verification/tutorial_global_oce_latlon/diags_matlab/mit_getparm.m,v 1.3 2006/08/12 20:25:12 jmc Exp $
+% $Name:  $
+
+y = [];
+[fp, msg] = fopen(fname,'r');
+if fp > 0
     str{1} = [];
     notfound = 0;
     while isempty(mystrfind(str{1},pname))
-      str{1} = fgetl(fp); 
-      if ~ischar(str{1}); % this catches the end of file (not very clean)
-	notfound = 1;
-	break; 
-      end
-      % clear again if commented
-      if ~isempty(mystrfind(str{1},'#')) 
-	str{1} = [];
-      end
+        str{1} = fgetl(fp);
+        if ~ischar(str{1}); % this catches the end of file (not very clean)
+            notfound = 1;
+            break;
+        end
+        % clear again if commented
+        if ~isempty(mystrfind(str{1},'#'))
+            str{1} = [];
+        end
     end
     if notfound
-      disp(['Warning: ' pname ' not found in ' fname])
-      y=[];
-%      disp(['         setting ' pname ' to zero'])
-%      y = 0;
+        disp(['Warning: ' pname ' not found in ' fname])
+        y=[];
+        %      disp(['         setting ' pname ' to zero'])
+        %      y = 0;
     else
-      teststr = [];
-      % find the termination of parameter pname 
-      % (next line with an '=' sign
-      % or with a namelist termination character '&' or '/')
-      n = 1;
-      while ( isempty(mystrfind(teststr,'=')) & ...
-	      isempty(mystrfind(teststr,'&')) & ...
-	      isempty(mystrfind(teststr,'/')) )
-	n = n + 1;
-	teststr = fgetl(fp);
-	str{n}  = teststr;
-	if ~ischar(teststr); break; end
-      end
-      eqind = findstr(str{1},'=');
-      y = str{1}(eqind+1:end-1);
-      % check whether it is a string in quotes or something else
-      quotes = findstr(y,'''');
-      if ~isempty(quotes)
-	y(quotes(2):end) = [];
-	y(1:quotes(1)) = [];
-      else
-	if ~( strcmpi(y,'.TRUE.') | strcmpi(y,'.FALSE.') )
-	  y = convert_str2num(str{1}(eqind+1:end-1));
-	  for k=2:n-1
-	    y = [y; convert_str2num(str{k}(eqind+1:end-1))];
-	  end
-% $$$ 	  y = str2num(str{1}(eqind+1:end-1))';
-% $$$ 	  for k=2:n-1
-% $$$ 	    y = [y; str2num(str{k}(eqind+1:end-1))'];
-% $$$ 	  end
-	end
-      end
+        teststr = [];
+        % find the termination of parameter pname
+        % (next line with an '=' sign
+        % or with a namelist termination character '&' or '/')
+        n = 1;
+        while ( isempty(mystrfind(teststr,'=')) & ...
+                isempty(mystrfind(teststr,'&')) & ...
+                isempty(mystrfind(teststr,'/')) )
+            n = n + 1;
+            teststr = fgetl(fp);
+            str{n}  = teststr;
+            if ~ischar(teststr); break; end
+        end
+        eqind = findstr(str{1},'=');
+        y = str{1}(eqind+1:end-1);
+        % check whether it is a string in quotes or something else
+        
+        quotes = findstr(y,'''');
+        if ~isempty(quotes)
+            y(quotes(2):end) = [];
+            y(1:quotes(1)) = [];
+        end
+        % zap blank spaces
+        y(y==' ')=[];
+  
+        if ~isempty(convert_str2num(str{1}(eqind+1:end-1))) 
+            y = convert_str2num(str{1}(eqind+1:end-1));
+            for k=2:n-1
+                y = [y; convert_str2num(str{k}(eqind+1:end-1))];
+            end
+            % $$$ 	  y = str2num(str{1}(eqind+1:end-1))';
+            % $$$ 	  for k=2:n-1
+            % $$$ 	    y = [y; str2num(str{k}(eqind+1:end-1))'];
+            % $$$ 	  end
+        elseif ( strcmp(lower(y),'.true.') || strcmp(lower(y),'.false.') )
+            y=y(2:end-1);
+        end
     end
+    
     fclose(fp);
-  else
+else
     error([fname ' could not be opened: ' msg])
-  end
+end
 
-  return
+return
 
 function y = convert_str2num(str)
-  
+
 % take care of the n*value format
-  stars = findstr(str,'*');
-  if isempty(stars)
+stars = findstr(str,'*');
+if isempty(stars)
     y = str2num(str)';
-  else
+else
     if length(stars)==1
-      y=repmat(str2num(str(stars+1:end)),[str2num(str(1:stars-1)) 1]);
+        y=repmat(str2num(str(stars+1:end)),[str2num(str(1:stars-1)) 1]);
     else
-      warning('The format n*x1,m*x2, ... cannot be handled')
-% $$$       for k=1:length(stars)
-% $$$ 	% find the beginnin and termination of the set
-% $$$       end
+        warning('The format n*x1,m*x2, ... cannot be handled')
+        % $$$       for k=1:length(stars)
+        % $$$ 	% find the beginnin and termination of the set
+        % $$$       end
     end
-  end
-  
-  return
+end
+
+return
 
 function [ind] = mystrfind(str,pattern)
-  
-  if length(pattern) > length(str)
+
+if length(pattern) > length(str)
     ind = [];
     return
-  else
+else
     ind = findstr(str,pattern);
-  end
+end

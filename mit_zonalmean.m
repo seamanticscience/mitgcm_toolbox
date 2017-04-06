@@ -1,14 +1,14 @@
-function meanfield = mit_zonalmean(field,hfac,dx);
+function [meanfield,annmeanfield] = mit_zonalmean(field,hfac,dx)
 %function meanfield = mit_zonalmean(field,hfac,dx);
 
 % $Header: /u/gcmpack/MITgcm/verification/tutorial_global_oce_latlon/diags_matlab/mit_zonalmean.m,v 1.3 2006/08/12 20:25:13 jmc Exp $
-% $Name: checkpoint59p $
+% $Name:  $
 
   [nx ny nz] = size(field);
 
   area = hfac.*repmat(dx,[1 1 nz]);
   meanfield = squeeze(nanmean(field.*area)./nanmean(area));
-  
+  annmeanfield=squeeze(nanmean(meanfield,2));
   knil = find(meanfield == 0);
   meanfield(knil) = NaN;
   

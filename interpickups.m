@@ -22,100 +22,100 @@ function interpickups(dirin,dirout,varargin)
 % $Name:  $
 
 if nargin==2
-  snap=1
+  snap=1;
 else
-  snap=varargin{1}
-endif
+  snap=varargin{1};
+end
 
 if (strcmp(dirin,dirout))
-  error('dir','You cant use the same input and output directories!')
+  error('dir: You cant use the same input and output directories!')
 end
 
-pickin=dir([dirin '/pickup.*.nc'])
-gridin=dir([dirin '/grid.*.nc'])
-if length(pickin)~=length(gridin)
-  error('in','Incompatible number of input pickups and gridfiles')
-end
+pickin=dir([dirin '/pickup.*.nc']);
+% gridin=dir([dirin '/grid.*.nc'])
+% if length(pickin)~=length(gridin)
+%   error('in','Incompatible number of input pickups and gridfiles')
+% end
 
-pickout=dir([dirout '/pickup.*.nc'])
-gridout=dir([dirout '/grid.*.nc'])
-if length(pickout)~=length(gridout)
-  error('out','Incompatible number of output pickups and gridfiles')
-end 
+pickout=dir([dirout '/pickup.*.nc']);
+% gridout=dir([dirout '/grid.*.nc'])
+% if length(pickout)~=length(gridout)
+%   error('out','Incompatible number of output pickups and gridfiles')
+% end 
 
 %%%%%%%%%%%%INPUT SANITY
 
 fin=netcdf([dirin '/' pickin(1).name],'nowrite');
-gin=netcdf([dirin '/' gridin(1).name],'nowrite');
+% gin=netcdf([dirin '/' gridin(1).name],'nowrite');
 Zcomp=fin{'Z'}(:);
-gZcomp=gin{'Z'}(:);
-if (sum(Zcomp~=gZcomp)>0)
-  error('in','Incompatible Z-axis input pickup and gridfile: 1')
-end
-
+% gZcomp=gin{'Z'}(:);
+% if (sum(Zcomp~=gZcomp)>0)
+%   error('in','Incompatible Z-axis input pickup and gridfile: 1')
+% end
+% 
 Xin=fin{'X'}(:);
-gXin=gin{'X'}(:);
-
-if (sum(gXin~=gXin)>0)
-  error('in','Incompatible x-axis input pickups and gridfile: 1')
-end
-
+% gXin=gin{'X'}(:);
+% 
+% if (sum(gXin~=gXin)>0)
+%   error('in','Incompatible x-axis input pickups and gridfile: 1')
+% end
+% 
 Yin=fin{'Y'}(:);
-gYin=gin{'Y'}(:);
-if (sum(gYin~=gYin)>0)
-  error('in','Incompatible y-axis input pickups and gridfile: 1')
-end
-
+% gYin=gin{'Y'}(:);
+% if (sum(gYin~=gYin)>0)
+%   error('in','Incompatible y-axis input pickups and gridfile: 1')
+% end
+% 
 Xp1in=fin{'Xp1'}(:);
-gXp1in=gin{'Xp1'}(:);
-if (sum(gXp1in~=gXp1in)>0)
-  error('in','Incompatible x-axis input pickups and gridfile: 1')
-end
-
+% gXp1in=gin{'Xp1'}(:);
+% if (sum(gXp1in~=gXp1in)>0)
+%   error('in','Incompatible x-axis input pickups and gridfile: 1')
+% end
+% 
 Yp1in=fin{'Yp1'}(:);
-gYp1in=gin{'Yp1'}(:);
-if (sum(gYp1in~=gYp1in)>0)
-  error('in','Incompatible y-axis input pickups and gridfile: 1')
-end
-
+% gYp1in=gin{'Yp1'}(:);
+% if (sum(gYp1in~=gYp1in)>0)
+%   error('in','Incompatible y-axis input pickups and gridfile: 1')
+% end
+% 
 close(fin)
-close(gin)
+% close(gin)
 
 for i=2:length(pickin)
-  fin=netcdf([dirin '/' pickin(i).name],'nowrite');
-  Z=fin{'Z'}(:);
-  if (sum(Zcomp~=Z)>0)
-    error('Z','Incompatible vertical axes in input pickups:',num2str(i))
-  end
-
-  gin=netcdf([dirin '/' pickin(i).name],'nowrite');
-  Z=gin{'Z'}(:);
-  if (sum(Zcomp~=Z)>0)
-    error('Z','Incompatible vertical axes in input gridfiles:',num2str(i))
-  end
-
-  Xin=sort([Xin;fin{'X'}(:)]);
-  Xp1in=sort([Xp1in;fin{'Xp1'}(:)]);
-
-  gXin=sort([gXin;gin{'X'}(:)]);
-  gXp1in=sort([gXp1in;gin{'Xp1'}(:)]);
-
-  if (sum(gXin~=Xin)>0)
-    error('X','Incompatible x-axes in input files:',num2str(i))
-  end
-
-  Yin=sort([Yin;fin{'Y'}(:)]);
-  Yp1in=sort([Yp1in;fin{'Yp1'}(:)]);
-
-  gYin=sort([gYin;fin{'Y'}(:)]);
-  gYp1in=sort([gYp1in;fin{'Yp1'}(:)]);
-
-  if (sum(gYin~=Yin)>0)
-    error('Y','Incompatible y-axes in input files:',num2str(i))
-  end
-
-  close(fin);
-  close(gin);
+    fin=netcdf([dirin '/' pickin(i).name],'nowrite');
+    Z=fin{'Z'}(:);
+%   if (sum(Zcomp~=Z)>0)
+%     error('Z','Incompatible vertical axes in input pickups:',num2str(i))
+%   end
+% 
+%   gin=netcdf([dirin '/' gridin(i).name],'nowrite');
+%   Z=gin{'Z'}(:);
+%   if (sum(Zcomp~=Z)>0)
+%     error('Z','Incompatible vertical axes in input gridfiles:',num2str(i))
+%   end
+% 
+    Xin=sort([Xin;fin{'X'}(:)]);
+    Xp1in=sort([Xp1in;fin{'Xp1'}(:)]);
+% 
+%   gXin=sort([gXin;gin{'X'}(:)]);
+%   gXp1in=sort([gXp1in;gin{'Xp1'}(:)]);
+% 
+%   if (sum(gXin~=Xin)>0)
+%     error('X','Incompatible x-axes in input files:',num2str(i))
+%   end
+% 
+    Yin=sort([Yin;fin{'Y'}(:)]);
+    Yp1in=sort([Yp1in;fin{'Yp1'}(:)]);
+% 
+%   gYin=sort([gYin;fin{'Y'}(:)]);
+%   gYp1in=sort([gYp1in;fin{'Yp1'}(:)]);
+% 
+%   if (sum(gYin~=Yin)>0)
+%     error('Y','Incompatible y-axes in input files:',num2str(i))
+%   end
+% 
+    close(fin);
+%   close(gin);
 end
 
 store=[Xin(1)];
@@ -125,7 +125,7 @@ for i=2:length(Xin)
   end
 end
 Xin=store';
-clear gXin
+%clear gXin
 
 store=[Xp1in(1)];
 for i=2:length(Xp1in)
@@ -134,7 +134,7 @@ for i=2:length(Xp1in)
   end
 end
 Xp1in=store';
-clear gXp1in
+%clear gXp1in
 
 store=[Yin(1)];
 for i=2:length(Yin)
@@ -143,7 +143,7 @@ for i=2:length(Yin)
   end
 end
 Yin=store';
-clear gYin
+%clear gYin
 
 store=[Yp1in(1)];
 for i=2:length(Yp1in)
@@ -152,80 +152,80 @@ for i=2:length(Yp1in)
   end
 end
 Yp1in=store';
-clear gYp1in
+%clear gYp1in
 
 %%%%%%%%%%%%%%% OUTPUT SANITY
 fout=netcdf([dirout '/' pickout(1).name],'nowrite');
-gout=netcdf([dirout '/' gridout(1).name],'nowrite');
+% gout=netcdf([dirout '/' gridout(1).name],'nowrite');
 Zcomp=fout{'Z'}(:);
-gZcomp=gout{'Z'}(:);
-if (sum(Zcomp~=gZcomp)>0)
-  error('out','Incompatible Z-axis output pickup and gridfile: 1')
-end
-
+% gZcomp=gout{'Z'}(:);
+% if (sum(Zcomp~=gZcomp)>0)
+%   error('out','Incompatible Z-axis output pickup and gridfile: 1')
+% end
+% 
 Xout=fout{'X'}(:);
-gXout=gout{'X'}(:);
-
-if (sum(gXout~=gXout)>0)
-  error('out','Incompatible x-axis output pickups and gridfile: 1')
-end
-
+% gXout=gout{'X'}(:);
+% 
+% if (sum(gXout~=gXout)>0)
+%   error('out','Incompatible x-axis output pickups and gridfile: 1')
+% end
+% 
 Yout=fout{'Y'}(:);
-gYout=gout{'Y'}(:);
-if (sum(gYout~=gYout)>0)
-  error('out','Incompatible y-axis output pickups and gridfile: 1')
-end
-
+% gYout=gout{'Y'}(:);
+% if (sum(gYout~=gYout)>0)
+%   error('out','Incompatible y-axis output pickups and gridfile: 1')
+% end
+% 
 Xp1out=fout{'Xp1'}(:);
-gXp1out=gout{'Xp1'}(:);
-if (sum(gXp1out~=gXp1out)>0)
-  error('out','Incompatible x-axis output pickups and gridfile: 1')
-end
-
+% gXp1out=gout{'Xp1'}(:);
+% if (sum(gXp1out~=gXp1out)>0)
+%   error('out','Incompatible x-axis output pickups and gridfile: 1')
+% end
+% 
 Yp1out=fout{'Yp1'}(:);
-gYp1out=gout{'Yp1'}(:);
-if (sum(gYp1out~=gYp1out)>0)
-  error('out','Incompatible y-axis output pickups and gridfile: 1')
-end
-
+% gYp1out=gout{'Yp1'}(:);
+% if (sum(gYp1out~=gYp1out)>0)
+%   error('out','Incompatible y-axis output pickups and gridfile: 1')
+% end
+% 
 close(fout)
-close(gout)
-
+% close(gout)
+% 
 for i=2:length(pickout)
-  fout=netcdf([dirout '/' pickout(i).name],'nowrite');
-  Z=fout{'Z'}(:);
-  if (sum(Zcomp~=Z)>0)
-    error('Z','Incompatible vertical axes in output pickups:',num2str(i))
-  end
-
-  gout=netcdf([dirout '/' pickout(i).name],'nowrite');
-  Z=gout{'Z'}(:);
-  if (sum(Zcomp~=Z)>0)
-    error('Z','Incompatible vertical axes in output gridfiles:',num2str(i))
-  end
-
-  Xout=sort([Xout;fout{'X'}(:)]);
-  Xp1out=sort([Xp1out;fout{'Xp1'}(:)]);
-
-  gXout=sort([gXout;gout{'X'}(:)]);
-  gXp1out=sort([gXp1out;gout{'Xp1'}(:)]);
-
-  if (sum(gXout~=Xout)>0)
-    error('X','Incompatible x-axes in output files:',num2str(i))
-  end
-
-  Yout=sort([Yout;fout{'Y'}(:)]);
-  Yp1out=sort([Yp1out;fout{'Yp1'}(:)]);
-
-  gYout=sort([gYout;fout{'Y'}(:)]);
-  gYp1out=sort([gYp1out;fout{'Yp1'}(:)]);
-
-  if (sum(gYout~=Yout)>0)
-    error('Y','Incompatible y-axes in output files:',num2str(i))
-  end
-
-  close(fout);
-  close(gout);
+    fout=netcdf([dirout '/' pickout(i).name],'nowrite');
+    Z=fout{'Z'}(:);
+%   if (sum(Zcomp~=Z)>0)
+%     error('Z','Incompatible vertical axes in output pickups:',num2str(i))
+%   end
+% 
+%   gout=netcdf([dirout '/' gridout(i).name],'nowrite');
+%   Z=gout{'Z'}(:);
+%   if (sum(Zcomp~=Z)>0)
+%     error('Z','Incompatible vertical axes in output gridfiles:',num2str(i))
+%   end
+% 
+    Xout=sort([Xout;fout{'X'}(:)]);
+    Xp1out=sort([Xp1out;fout{'Xp1'}(:)]);
+% 
+%   gXout=sort([gXout;gout{'X'}(:)]);
+%   gXp1out=sort([gXp1out;gout{'Xp1'}(:)]);
+% 
+%   if (sum(gXout~=Xout)>0)
+%     error('X','Incompatible x-axes in output files:',num2str(i))
+%   end
+% 
+    Yout=sort([Yout;fout{'Y'}(:)]);
+    Yp1out=sort([Yp1out;fout{'Yp1'}(:)]);
+% 
+%   gYout=sort([gYout;fout{'Y'}(:)]);
+%   gYp1out=sort([gYp1out;fout{'Yp1'}(:)]);
+% 
+%   if (sum(gYout~=Yout)>0)
+%     error('Y','Incompatible y-axes in output files:',num2str(i))
+%   end
+% 
+    close(fout);
+%   close(gout);
 end
 
 store=[Xout(1)];
@@ -235,7 +235,7 @@ for i=2:length(Xout)
   end
 end
 Xout=store';
-clear gXout
+%clear gXout
 
 store=[Xp1out(1)];
 for i=2:length(Xp1out)
@@ -244,7 +244,7 @@ for i=2:length(Xp1out)
   end
 end
 Xp1out=store';
-clear gXp1out
+%clear gXp1out
 
 store=[Yout(1)];
 for i=2:length(Yout)
@@ -253,7 +253,7 @@ for i=2:length(Yout)
   end
 end
 Yout=store';
-clear gYout
+%clear gYout
 
 store=[Yp1out(1)];
 for i=2:length(Yp1out)
@@ -262,7 +262,7 @@ for i=2:length(Yp1out)
   end
 end
 Yp1out=store';
-clear gYp1out
+%clear gYp1out
 
 
 % First, do the Centered variables
