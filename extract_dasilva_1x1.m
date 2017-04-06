@@ -1,0 +1,61 @@
+function [T,x,y]=extract_dasilva_1x1(suff,months,lon_lo,lon_hi,lat_lo,lat_hi)
+%
+% Extract daSilva data from archive file '/d01/adcroft/dasilva/1x1/raw/*.r4'
+%   1 degree by 1 degree dataset
+%
+% e.g.
+%   [Tx,x,y]=extract_dasilva_1x1('Taux',1,-180,180,-90,90);
+%   [Ql,x,y]=extract_dasilva_1x1('Ql',1:12,0,360,-90,90);
+
+archivedirectory
+
+fid=fopen([ARCHIVEDIR '/dasilva/1x1/raw/' suff '.r4'],'r','b');
+if fid <0 
+ error('I failed to open the file')
+end
+
+% Loop over all the month arguments
+jjrec=0;
+for month=months,
+jjrec=jjrec+1;
+
+status=fseek(fid,(month-1)*(360*180*4),'bof');
+if status ~= 0
+ sprintf(' fseek status=%i',status);
+ error(ferror(status))
+end
+
+i0=round( lon_lo )+1;
+i1=round( lon_hi );
+j0=round( (lat_lo+90) )+1;
+j1=round( (lat_hi+90) );
+
+if i1>i0
+ ii=i0:i1;
+else
+ ii=[i0:360 1:i1];
+end
+ii=mod(ii+360-1,360)+1;
+jj=j0:j1;
+
+nx=prod(size(ii));
+ny=prod(size(jj));
+
+LD=fread(fid,360*180,'real*4');
+nodata=LD(1);
+LD( find(LD==nodata) )=NaN;
+LD=reshape( LD, [360 180]);
+
+T(:,:,jjrec)=LD(ii,jj,:);
+
+end
+fclose(fid);
+
+xl=0.5:359.5;
+if lon_lo<0 | lon_hi<0
+ xl=mod(xl+180,360)-180;
+end
+yl=-89.5:89.5;
+
+x=xl(ii);
+y=yl(jj);
