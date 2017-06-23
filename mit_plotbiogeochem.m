@@ -17,10 +17,11 @@ ptr_tave=rdmnc(['ptr_',tavesteps.filearr(2:end-1)],tavesteps.timesteps(tavesteps
 
 % dic_bar=1.8:0.02:2.4;
 % alk_bar=2.0:0.025:2.5;
- po4_bar=-2.5e-4:2.5e-4:3.75e-3;
+po4_bar=-2.5e-4:2.5e-4:3.75e-3;
 % dop_bar=-2e-5:2e-5:2.4e-4;
 o2_bar =-0.02:0.02:0.42;
 fe_bar =-1e-7:1e-7:1.4e-6;
+cdis_bar= -32e-3:2e-3:32e-3;
 % 
 % anom_dic_bar=-30:5:30;
 % anom_alk_bar=-30:5:30;

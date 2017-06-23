@@ -51,7 +51,8 @@ for j=1:size(files,1);
 end
 
 %%   % tidy up leftover links
-!find . -type l | xargs rm
+%!find . -type l | xargs rm
+!find . -type l -exec unlink '{}' \;
 
 %% Now check for timeseries broken across different files
 if exist('gluemnc_cat_timeseries.m','file') % prerequisite

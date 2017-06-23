@@ -59,7 +59,13 @@ else
             dicint2 = mit_getparm(data_dic,'DIC_int2');
             dicint3 = mit_getparm(data_dic,'DIC_int3');
             dicint4 = mit_getparm(data_dic,'DIC_int4');
-            dic_pco2=load([fileparts(data_file),'/co2atmos.dat']);
+            if exist([fileparts(data_file),'/co2atmos.dat'],'file')
+               dic_pco2=load([fileparts(data_file),'/co2atmos.dat']); 
+            elseif exist([strrep(fileparts(data_file),'input','build'),'/co2atmos.dat'],'file')
+               dic_pco2=load([strrep(fileparts(data_file),'input','build'),'/co2atmos.dat']); 
+            else
+                error('No co2atmos.dat file could be found')
+            end
             atmos_tim=((dicint3):dicint4:(dicint3+dicint4*dicint2))/(dicint4);
             % just get the ones that are within the simulation
             [~,ii]=intersect(atmos_tim',statesteps.tim);

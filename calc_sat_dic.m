@@ -1,4 +1,4 @@
-function [filename]=calc_sat_dic(grd,tavesteps,filename)
+function [pstar]=calc_sat_dic(grd,tavesteps,filename)
 %% Load variables
 if nargin==0 || ~exist('grd','var')
     grd=mit_loadgrid;
@@ -80,6 +80,10 @@ nc_attput(filename,'alk_pref','title','Preformed Alkalinity')
 % Not enough precision, should appear as -1.e+34f in ncdumpexi
 % nc_attput(filename,'alk_pref','missing_value',-1.0e34)
 
+nc_addvar(filename,struct('Name','po4_pref','Datatype','float','Dimension',{{'T','Z','Y','X'}}));
+nc_attput(filename,'po4_pref','units','mol/m3');
+nc_attput(filename,'po4_pref','title','Preformed Phosphate')
+
 % wrt control pco2, this is dT(dCsat/dT)+dALK(dCsat/dALK)+dS(dCsat/dS)+dNUTS(dCsat/dNUTS)
 nc_addvar(filename,struct('Name','dic_satini','Datatype','float','Dimension',{{'T','Z','Y','X'}}));
 nc_addvar(filename,struct('Name','ph_satini','Datatype','float','Dimension',{{'T','Z','Y','X'}}));
@@ -89,7 +93,6 @@ nc_attput(filename,'ph_satini','title','pH at initial/control pCO2')
 
 nc_attput(filename,'dic_satini','units','mol/kg')
 nc_attput(filename,'ph_satini','units','')
-
 % nc_attput(filename,'dic_satini','missing_value',-1.0e34)
 % nc_attput(filename,'ph_satini','missing_value',-1.0e34)
 
@@ -102,7 +105,6 @@ nc_attput(filename,'ph_satatm','title','pH at prognostic atmospheric pCO2')
 
 nc_attput(filename,'dic_satatm','units','mol/kg')
 nc_attput(filename,'ph_satatm','units','')
-
 % nc_attput(filename,'dic_satatm','missing_value',-1.0e34)
 % nc_attput(filename,'ph_satatm','missing_value',-1.0e34)
 
@@ -115,7 +117,6 @@ nc_attput(filename,'ph_sattot','title','pH')
 
 nc_attput(filename,'dic_sattot','units','mol/kg')
 nc_attput(filename,'ph_sattot','units','')
-
 % nc_attput(filename,'dic_sattot','missing_value',-1.0e34)
 % nc_attput(filename,'ph_sattot','missing_value',-1.0e34)
 
@@ -128,7 +129,6 @@ nc_attput(filename,'ph_satalk','title','pH due to ALK_PREF')
 
 nc_attput(filename,'dic_satalk','units','mol/kg')
 nc_attput(filename,'ph_satalk','units','')
-
 % nc_attput(filename,'dic_satalk','missing_value',-1.0e34)
 % nc_attput(filename,'ph_satalk','missing_value',-1.0e34)
 
@@ -141,7 +141,6 @@ nc_attput(filename,'ph_satt','title','pH due to T')
 
 nc_attput(filename,'dic_satt','units','mol/kg')
 nc_attput(filename,'ph_satt','units','')
-
 % nc_attput(filename,'dic_satt','missing_value',-1.0e34)
 % nc_attput(filename,'ph_satt','missing_value',-1.0e34)
 
@@ -154,7 +153,6 @@ nc_attput(filename,'ph_sats','title','pH due to S')
 
 nc_attput(filename,'dic_sats','units','mol/kg')
 nc_attput(filename,'ph_sats','units','')
-
 % nc_attput(filename,'dic_sats','missing_value',-1.0e34)
 % nc_attput(filename,'ph_sats','missing_value',-1.0e34)
 
@@ -404,6 +402,7 @@ for tstep=1:tavesteps.kmax;
     data_struct.T = tavesteps.tim(tstep);
     data_struct.iter = tavesteps.timesteps(tstep);
     data_struct.alk_pref = change(permute(ta,[3,2,1]),'==',NaN,-1e34);
+    data_struct.po4_pref = change(permute(pt,[3,2,1]),'==',NaN,-1e34);
     
     data_struct.dic_satini = change(permute(dic_satini,[3,2,1]),'==',NaN,-1e34);
     data_struct.ph_satini = change(permute(ph_satini,[3,2,1]),'==',NaN,-1e34);
@@ -425,6 +424,10 @@ for tstep=1:tavesteps.kmax;
     
     nc_add_recs(filename,data_struct,'T')
 end
+
+% Calculate pstar (nutrient utilization efficiency) for the final timestep
+pstar=(nansum((ptracer.po4(:)-pt(:)).*grd.volc(:).*grd.hfacc(:))./nansum(grd.volc(:).*grd.hfacc(:)))...
+    ./(nansum(ptracer.po4(:).*grd.volc(:).*grd.hfacc(:))./nansum(grd.volc(:).*grd.hfacc(:)));
 
 % Add floating_point missing_value to all variables
 eval(['!ncatted -O -a missing_value,,c,f,-1.0e34 ',filename])

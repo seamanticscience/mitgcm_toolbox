@@ -84,7 +84,7 @@ end
 if ~exist('dic_sat.glob.nc','file')
    disp('Calculating DIC Components...')
    tic
-   [filename]=calc_sat_dic(grd,tavesteps);
+   [pstar]=calc_sat_dic(grd,tavesteps)
    toc
    clear functions % frees up open netcdf file handles
 else
