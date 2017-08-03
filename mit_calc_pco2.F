@@ -137,6 +137,8 @@ C     Create matrix for the return argument.
 
 CC     Call the computational subroutines.
 C calc_pco2 calculates the pco2 and ph, as well as carbon species
+C See carbon_chem.f for details of this subroutine, and make sure
+C  to include carbon_chem.o when compiling
          call calc_pco2(dims(1),dims(2),dims(3),
      I           %val(mask),%val(pressc),
      I           %val(theta),%val(salt),%val(dic),

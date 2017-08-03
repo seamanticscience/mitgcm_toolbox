@@ -105,7 +105,7 @@ for k=1:kmax;
         
         % Calculate Cant using actual Csat and Cdis diagnostics
         if isvar('pdiags.csat') && isvar('pdiags.cdis')
-           trcant=pdiags.cpre-pdiags.csat-pdiags.cdis;
+           trcant=pdiags.cpre-cdiags.CSATINIT+pdiags.cdis;
            total_trcant(k) = nansum(trcant(:).*grd.volc(:)).*12e-15; % Total moles of the tracer (PgC)
         else
            total_trcant(k) = 0;
@@ -185,6 +185,8 @@ if ~isempty(strfind(lower(os),'darwin'))
         filepath='/Volumes/PhD_Data';
     elseif exist('/Volumes/Postdoc_Data/','dir')
         filepath='/Volumes/Postdoc_Data';
+    elseif exist('/Volumes/My_Passport/','dir')
+        filepath='/Volumes/My_Passport';
     else
         [~,mitpath]=system('echo $mitgcm');
         
@@ -383,11 +385,11 @@ end
 
 if isvar('cant') && isvar('cstar');
     plot(diagyrs,total_cant,'c--','LineWidth',1)
-    plot(diagyrs,total_cstar,'m--','LineWidth',1)
-    plot(diagyrs,total_cstar_res,'y--','LineWidth',2)
+    plot(diagsteps.tim/1000,total_trcant,'m--','LineWidth',1)
+    plot(diagyrs,total_cstar,'y--','LineWidth',2)
         titlevec=vertcat(titlevec,...
-        ['\color{cyan}\DeltaC_{ant} = ',num2str(round(dcant),4),'\color{black}, \color{magenta}\DeltaC_{sat}^{*} = ',num2str(round(dcstar),4),...
-    '\color{black}, and \color{yellow}\DeltaC_{res}^{*} = ',num2str(round(dcstar_res),4)]);
+        ['\color{cyan}\DeltaC_{ant} = ',num2str(round(dcant),4),'\color{black}, \color{magenta}\DeltaCantTracer = ',num2str(round(dtrcant),4),...
+    '\color{black}, and \color{yellow}\DeltaC^{*} = ',num2str(round(dcstar),4)]);
 end
 
 % if isvar('ctim')
@@ -481,14 +483,30 @@ colorbar('YTick',2000:100:2500)
 set(gca,'Color','k');
 title('Pacific C_{sat} at initial pCO_2 [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
 
-if isvar('cdiags.CSATSIT');
+if isvar('pdiags.csat')
+    subplot(ss,2,5)
+    contourf(grd.latc,-grd.zc,squeeze(nanmean(pdiags.csat.*grd.atlantic_hfacc(:,:,:),1))'.*1000,[2000:20:2500])
+    colormap(bluewhitered(length(2000:20:2500)-1))
+    caxis([2000 2500])
+    colorbar('YTick',2000:100:2500)
+    set(gca,'Color','k');
+    title('Atlantic C_{sat} at in situ pCO_2 (tracer) [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
+    
+    subplot(ss,2,6)
+    contourf(grd.latc,-grd.zc,squeeze(nanmean(pdiags.csat.*grd.pacific_hfacc(:,:,:),1))'.*1000,[2000:20:2500])
+    colormap(bluewhitered(length(2000:20:2500)-1))
+    caxis([2000 2500])
+    colorbar('YTick',2000:100:2500)
+    set(gca,'Color','k');
+    title('Pacific C_{sat} at in situ pCO_2 (tracer) [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')   
+elseif isvar('cdiags.CSATSIT');
     subplot(ss,2,5)
     contourf(grd.latc,-grd.zc,squeeze(nanmean(cdiags.CSATSIT.*grd.atlantic_hfacc(:,:,:),1))'.*1000,[2000:20:2500])
     colormap(bluewhitered(length(2000:20:2500)-1))
     caxis([2000 2500])
     colorbar('YTick',2000:100:2500)
     set(gca,'Color','k');
-    title('Atlantic C_{sat} at in situ pCO_2 [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
+    title('Atlantic C_{sat} at in situ pCO_2 (diagnostic) [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
     
     subplot(ss,2,6)
     contourf(grd.latc,-grd.zc,squeeze(nanmean(cdiags.CSATSIT.*grd.pacific_hfacc(:,:,:),1))'.*1000,[2000:20:2500])
@@ -496,7 +514,7 @@ if isvar('cdiags.CSATSIT');
     caxis([2000 2500])
     colorbar('YTick',2000:100:2500)
     set(gca,'Color','k');
-    title('Pacific C_{sat} at in situ pCO_2 [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
+    title('Pacific C_{sat} at in situ pCO_2 (diagnostic) [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
 end
 
 orient landscape
@@ -536,14 +554,31 @@ colorbar('YTick',-300:100:300)
 set(gca,'Color','k');
 title('Pacific C_{res} at initial pCO_2 [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
 
-if isvar('cdiags.CSATSIT');
+if isvar('pdiags.cdis');
+    subplot(ss,2,5)
+    contourf(grd.latc,-grd.zc,squeeze(nanmean(pdiags.cdis.*grd.atlantic_hfacc(:,:,:),1))'.*1000,[-300:20:300])
+    colormap(bluewhitered(length(-300:20:300)-1))
+    caxis([-300 300])
+    colorbar('YTick',-300:100:300)
+    set(gca,'Color','k');
+    title('Atlantic C_{dis} at in situ pCO_2 (tracer) [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
+    
+    subplot(ss,2,6)
+    contourf(grd.latc,-grd.zc,squeeze(nanmean(pdiags.cdis.*grd.pacific_hfacc(:,:,:),1))'.*1000,[-300:20:300])
+    colormap(bluewhitered(length(-300:20:300)-1))
+    caxis([-300 300])
+    colorbar('YTick',-300:100:300)
+    set(gca,'Color','k');
+    title('Pacific C_{dis} at in situ pCO_2 (tracer) [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
+
+elseif isvar('cdiags.CSATSIT');
     subplot(ss,2,5)
     contourf(grd.latc,-grd.zc,squeeze(nanmean(cdiags.CRESSIT.*grd.atlantic_hfacc(:,:,:),1))'.*1000,[-300:20:300])
     colormap(bluewhitered(length(-300:20:300)-1))
     caxis([-300 300])
     colorbar('YTick',-300:100:300)
     set(gca,'Color','k');
-    title('Atlantic C_{res} at in situ pCO_2 [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
+    title('Atlantic C_{res} at in situ pCO_2 (diagnostic) [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
     
     subplot(ss,2,6)
     contourf(grd.latc,-grd.zc,squeeze(nanmean(cdiags.CRESSIT.*grd.pacific_hfacc(:,:,:),1))'.*1000,[-300:20:300])
@@ -551,7 +586,7 @@ if isvar('cdiags.CSATSIT');
     caxis([-300 300])
     colorbar('YTick',-300:100:300)
     set(gca,'Color','k');
-    title('Pacific C_{res} at in situ pCO_2 [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
+    title('Pacific C_{res} at in situ pCO_2 (diagnostic) [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
 end
 
 colormap(bluewhitered(length(-300:20:300)-1))
@@ -578,24 +613,24 @@ colorbar('YTick',-300:100:300)
 set(gca,'Color','k');
 title('Pacific C_{ant} [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
 
-if isvar('cdiags.CSATSIT');
+if isvar('trcant')
     subplot(ss,2,3)
-    contourf(grd.latc,-grd.zc,squeeze(nanmean(cstar.*grd.atlantic_hfacc(:,:,:),1))'.*1000,[-300:20:300])
+    contourf(grd.latc,-grd.zc,squeeze(nanmean(cstar_res.*grd.atlantic_hfacc(:,:,:),1))'.*1000,[-300:20:300])
     colormap(bluewhitered(length(-300:20:300)-1))
     caxis([-300 300])
     colorbar('YTick',-300:100:300)
     set(gca,'Color','k');
-    title('Atlantic C^{*}_{sat} [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
+    title('Atlantic C_{ant} (from tracer) [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
     
     subplot(ss,2,4)
-    contourf(grd.latc,-grd.zc,squeeze(nanmean(cstar.*grd.pacific_hfacc(:,:,:),1))'.*1000,[-300:20:300])
+    contourf(grd.latc,-grd.zc,squeeze(nanmean(cstar_res.*grd.pacific_hfacc(:,:,:),1))'.*1000,[-300:20:300])
     colormap(bluewhitered(length(-300:20:300)-1))
     caxis([-300 300])
     colorbar('YTick',-300:100:300)
     set(gca,'Color','k');
-    title('Pacific C^{*}_{sat} [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
-    
-    subplot(ss,2,5)
+    title('Pacific C_{ant} (from tracer) [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
+else
+    subplot(ss,2,3)
     contourf(grd.latc,-grd.zc,squeeze(nanmean(cstar_res.*grd.atlantic_hfacc(:,:,:),1))'.*1000,[-300:20:300])
     colormap(bluewhitered(length(-300:20:300)-1))
     caxis([-300 300])
@@ -603,13 +638,31 @@ if isvar('cdiags.CSATSIT');
     set(gca,'Color','k');
     title('Atlantic C^{*}_{res} [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
     
-    subplot(ss,2,6)
+    subplot(ss,2,4)
     contourf(grd.latc,-grd.zc,squeeze(nanmean(cstar_res.*grd.pacific_hfacc(:,:,:),1))'.*1000,[-300:20:300])
     colormap(bluewhitered(length(-300:20:300)-1))
     caxis([-300 300])
     colorbar('YTick',-300:100:300)
     set(gca,'Color','k');
     title('Pacific C^{*}_{res} [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
+end
+
+if isvar('cdiags.CSATSIT');
+    subplot(ss,2,5)
+    contourf(grd.latc,-grd.zc,squeeze(nanmean(cstar.*grd.atlantic_hfacc(:,:,:),1))'.*1000,[-300:20:300])
+    colormap(bluewhitered(length(-300:20:300)-1))
+    caxis([-300 300])
+    colorbar('YTick',-300:100:300)
+    set(gca,'Color','k');
+    title('Atlantic C^{*}_{sat} [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
+    
+    subplot(ss,2,6)
+    contourf(grd.latc,-grd.zc,squeeze(nanmean(cstar.*grd.pacific_hfacc(:,:,:),1))'.*1000,[-300:20:300])
+    colormap(bluewhitered(length(-300:20:300)-1))
+    caxis([-300 300])
+    colorbar('YTick',-300:100:300)
+    set(gca,'Color','k');
+    title('Pacific C^{*}_{sat} [mmol m^{-3}]'); xlabel('Latitude'); ylabel('Depth [m]')
 end
 
 colormap(bluewhitered(length(-300:20:300)-1))
