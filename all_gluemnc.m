@@ -52,7 +52,7 @@ end
 
 %%   % tidy up leftover links
 %!find . -type l | xargs rm
-!find . -type l -exec unlink '{}' \;
+system('find . -type l  -exec unlink {} \;');
 
 %% Now check for timeseries broken across different files
 if exist('gluemnc_cat_timeseries.m','file') % prerequisite
@@ -78,7 +78,7 @@ if exist('gluemnc_cat_timeseries.m','file') % prerequisite
         
         % tidy up leftover timeseries fragments
         for i=1:length(itern);
-            eval(['!find . -name "*.',sprintf('%010d',itern(i)),'.glob.nc" | xargs rm'])
+            eval(['system(''find . -name "*.',sprintf('%010d',itern(i)),'.glob.nc" -exec rm {} \;'');'])
         end
     end
 end
@@ -102,4 +102,5 @@ clear functions
 fclose('all');
 
 % tidy up leftover links again
-!find . -type l | xargs rm
+%!find . -type l | xargs rm
+system('find . -type l  -exec unlink {} \;');
