@@ -1,4 +1,4 @@
-function [nc_out] = gluemnc(diags,nIter0)
+function [nc_out] = gluemnc(diags,nIter0,varargin)
 % gluemnc.m
 % written by david wang, ldeo
 %
@@ -16,6 +16,13 @@ function [nc_out] = gluemnc(diags,nIter0)
 % $Name:  $
 
 %if nargin ~= 2, error('there have to be two input arguments!'); end
+
+if nargin>2
+    debugMode=true;
+else
+    debugMode=false;
+end
+
 
 if strcmp(diags,'grid');
     nc_in    = [diags,'.t%03d.nc'];
@@ -66,7 +73,7 @@ end
 if strncmp(diags,'pickup',6);
     [nt,nf,exit] = pickup_assembly(nc_in, vars, nc_out);
 else
-    [nt,nf,exit] = mnc_assembly(nc_in, vars, nc_out);
+    [nt,nf,exit] = mnc_assembly(nc_in, vars, nc_out, debugMode);
 end
 
 % Attributes handled directly in mnc_assembly

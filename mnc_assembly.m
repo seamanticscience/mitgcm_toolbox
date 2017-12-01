@@ -1,12 +1,13 @@
-function [nt,nf,exit] = mnc_assembly(fpat,vars, fout,fsize)
-% Function [nt,nf] = mnc_assembly(fpat,vars, fout,fsize)
+function [nt,nf,exit] = mnc_assembly(fpat,vars, fout, debugMode)
+% Function [nt,nf] = mnc_assembly(fpat,vars, fout)
 %
 % INPUTS
 % fpat   string containing the file pattern
 % vars   structure array of variable names
 %
 % fout   output file pattern (DEF: "all.%05d.nc")
-% fsize  max output file size (DEF: 2.0e+9 = +/-2GB)
+% 'debug'  as an additional text argument will enable extra info to be
+% printed to screen
 %
 % OUTPUTS
 % nt     number of usable tiles found
@@ -85,6 +86,11 @@ function [nt,nf,exit] = mnc_assembly(fpat,vars, fout,fsize)
 
 
 %% =====  Find and open all the matching files  =====
+
+
+if nargin==2
+    debugMode=false;
+end
 
 nt      = 0;
 nf      = 0;
@@ -298,8 +304,10 @@ for ivar = 1:length(vars)
         has_horiz = 1;
       end
     end
-    %disp([ ' check for horizontal componant    ' myname ' '...
-    %sprintf('%d',has_horiz) ]);
+    if debugMode
+        disp([ ' check for horizontal componant    ' myname ' '...
+            sprintf('%d',has_horiz) ]);
+    end
     
     imy = length(myvars) + 1;
     myvars(imy).name       = myname;
@@ -378,8 +386,8 @@ if all_ncf(1).exch == 1
   horzdim = struct('names',{},'lens',{});
   horzdim(1).names = { 'X' };  horzdim(1).lens = { Xmax     };
   horzdim(3).names = { 'Y' };  horzdim(3).lens = { Ymax     };
-  horzdim(4).names = {'Yp1'};  horzdim(4).lens = { Ymax     };
-  horzdim(2).names = {'Xp1'};  horzdim(2).lens = { Xmax     };
+  horzdim(4).names = {'Yp1'};  horzdim(4).lens = { Ymax     }; % Purposely truncate
+  horzdim(2).names = {'Xp1'};  horzdim(2).lens = { Xmax     }; % Purposely truncate
 %   horzdim(4).names = {'Yp1'};  horzdim(4).lens = { Ymax + 1 }; % Match output from unix routines
 %   horzdim(2).names = {'Xp1'};  horzdim(2).lens = { Xmax + 1 }; % Match output from unix routines
   horzdim(5).names = { 'T' };  horzdim(5).lens = { 0        };
@@ -448,7 +456,9 @@ end
     %disp(['dlen = ', dlen])
 %    comm = sprintf('fonc(''%s'') = %d;',dname,dlen);
     comm = sprintf('nc_adddim(foutnm,''%s'',%d);',dname,dlen);
-%    disp([ 'Define dimensions:  ' comm ]);
+    if debugMode
+        disp([ 'Define dimensions:  ' comm ]);
+    end
     eval(comm);
   end
 
@@ -460,16 +470,19 @@ end
         myvars(ivar).name,...
         strrep(strrep(myvars(ivar).type,'char','text'),'long','int'),...
         strrep(cell2str(myvars(ivar).dim_names),';',''));
+    if debugMode
+        disp(['Define variables:  ' comm ]);
+    end
     eval(comm);
-%    disp(['Define variables:  ' comm ]);
-    
     for iat = 1:length(myvars(ivar).atts.names)
       % Adds and attributes to the variable definition
       comm=sprintf('nc_attput(foutnm,''%s'',''%s'',''%s'');',...
           myvars(ivar).name,...
           myvars(ivar).atts.names{iat},...
           myvars(ivar).atts.data{iat});
-%      disp(['    Add variable attributes:  ' comm ]);
+      if debugMode
+          disp(['    Add variable attributes:  ' comm ]);
+      end
       eval(comm);
     end
   end
@@ -501,7 +514,9 @@ end
               nctile_size= ''; % Size of the tile data
               
               for jj = 1:length(myvars(ivar).dim_names)
-              %    disp(['operating on ',myvars(ivar).dim_names{jj}])
+                  if debugMode
+                      disp(['operating on ',myvars(ivar).dim_names{jj}])
+                  end
                   doff = 1;
                   if jj > 1
                       ncglob_pos = sprintf('%s,',ncglob_pos);
@@ -609,7 +624,9 @@ end
                 ncglob_pos, all_ncf(itile).name, myvars(ivar).name,...
                 num2str(zeros(1,length(myvars(ivar).dim_names))),... % produce zeros as start point e.g. [0 0 0 0] for 4D var
                 nctile_size);
-%            disp(['    Create global array:  ' comm ]);
+            if debugMode
+                disp(['    Create global array:  ' comm ]);
+            end
             eval(comm);    
           end
       end
@@ -627,8 +644,10 @@ end
           myvars(ivar).name,...
           num2str(zeros(1,length(myvars(ivar).dim_names))),... % produce zeros as start point e.g. [0 0 0 0] for 4D var
           num2str(vardim_length)); % vector of global data array e.g. [nt,nz,nx,ny]
+      if debugMode
+          disp([ 'Write out global data:  ' comm ]);
+      end
       eval(comm);
-      %disp([ 'Write out global data:  ' comm ]);
   end
 
   % Clears/closes any still-open netcdf files

@@ -1,5 +1,5 @@
 function [ubg,vbg,wbg]=mit_gmvel(kwx,kwy,nx,ny,nz,nt,dx,dy,dz,cmask,umask,vmask,area,varargin)
-% function [ubg,vbg,zbg]=mit_gmvel(kwx,kwy,kwz,nx,ny,nz,dz)
+% function [ubg,vbg,zbg]=mit_gmvel(kwx,kwy,nx,ny,nz,nt,dx,dy,dz,cmask,umask,vmask,area,varargin)
 %
 % Caluculate MITgcm Bolus Velocities for the GM-eddy mixing
 % parameterisation. Kwx,Kwy and Kwz are Kgm*Isopycnal_Slope
