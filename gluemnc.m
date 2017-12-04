@@ -17,12 +17,11 @@ function [nc_out] = gluemnc(diags,nIter0,varargin)
 
 %if nargin ~= 2, error('there have to be two input arguments!'); end
 
-if nargin>2
-    debugMode=true;
-else
+if isempty(varargin)
     debugMode=false;
+else
+    debugMode=varargin{1};
 end
-
 
 if strcmp(diags,'grid');
     nc_in    = [diags,'.t%03d.nc'];

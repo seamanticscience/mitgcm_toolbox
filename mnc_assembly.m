@@ -1,10 +1,9 @@
-function [nt,nf,exit] = mnc_assembly(fpat,vars, fout, debugMode)
-% Function [nt,nf] = mnc_assembly(fpat,vars, fout)
+function [nt,nf,exit] = mnc_assembly(fpat, vars, fout, varargin)
+% Function [nt,nf] = mnc_assembly(fpat, vars, fout, varargin)
 %
 % INPUTS
 % fpat   string containing the file pattern
 % vars   structure array of variable names
-%
 % fout   output file pattern (DEF: "all.%05d.nc")
 % 'debug'  as an additional text argument will enable extra info to be
 % printed to screen
@@ -88,8 +87,10 @@ function [nt,nf,exit] = mnc_assembly(fpat,vars, fout, debugMode)
 %% =====  Find and open all the matching files  =====
 
 
-if nargin==2
+if isempty(varargin)
     debugMode=false;
+else
+    debugMode=varargin{1};
 end
 
 nt      = 0;
