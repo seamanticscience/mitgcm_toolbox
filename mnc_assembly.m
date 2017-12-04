@@ -862,3 +862,17 @@ elseif all_ncf(1).exch == 2 % UNTESTED: as I dont have any cube-sphere data avai
   % fonc = close(fonc);
 end
 
+function string = cell2str(cellstr)
+%CELL2STR Convert a cell array of string dimensions to a string.
+
+ncols = size(cellstr,2);
+for i=1:ncols-1
+    cellstr(:,i) = cellfun(@(x)['''' strrep(x,'''','''''') ''','],...
+        cellstr(:,i),'UniformOutput',false);
+end
+if ncols>0
+    cellstr(:,ncols) = cellfun(@(x)['''' strrep(x,'''','''''') ''';'],...
+        cellstr(:,ncols),'UniformOutput',false);
+end
+cellstr = cellstr';
+string = ['{' cellstr{:} '}'];
