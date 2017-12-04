@@ -78,7 +78,7 @@ for ff=1:length(file)
     
     % figure
     % contourf(grid.lonc,grid.latc,gbaro_psi(:,:,end)')
-    % canom;colormap(bluewhitered(20));colorbar
+    % colormap(bluewhitered(20));colorbar
     % hold on
     % contour(grid.lonc,grid.latc,gbaro_psi(:,:,end)',[floor(tdp(end)) floor(tdp(end))],'g')
     % contour(grid.lonc,grid.latc(1:25),gbaro_psi(:,1:25,end)',[0 0],'g')

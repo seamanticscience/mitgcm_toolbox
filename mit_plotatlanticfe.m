@@ -29,9 +29,8 @@ else
 end
 
 figure
-contourf(grd.latc,-grd.zc,squeeze(nanmean(atlantic_fe,1))')
-colorbar
-caxis([1.5e-7 12e-7])
+contourf(grd.latc,-grd.zc,squeeze(nanmean(atlantic_fe,1))',[0:1e-7:12e-7])
+colormap(parula(12));caxis([0 12e-7]); colorbar
 set(gca,'FontSize',12)
 xlabel('Latitude','Fontsize',12)
 ylabel('Depth','Fontsize',12)
@@ -42,8 +41,8 @@ fixpslinestyle('atlantic_fe_conc.ps')
 
 if ~isempty(atlantic_cntrl_fe)
     figure
-    contourf(grd.latc,-grd.zc,squeeze(nanmean(atlantic_fe,1)-nanmean(atlantic_cntrl_fe,1))')
-    canom;cmapa(4);colorbar
+    contourf(grd.latc,-grd.zc,squeeze(nanmean(atlantic_fe,1)-nanmean(atlantic_cntrl_fe,1))',[-10e-7:1e-7:10e-7])
+    caxis([-10e-7 10e-7]); colormap(bluewhitered(20)); colorbar
     set(gca,'FontSize',12)
     xlabel('Latitude','Fontsize',12)
     ylabel('Depth','Fontsize',12)

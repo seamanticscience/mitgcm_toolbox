@@ -32,7 +32,7 @@ mit_sigma0=mit_sigma0';
 %% Plot comparisons of heat and freshwater fluxes
 figure
 contourf(nlonc-360,grd.latc,surf.TFLUX(nic,:,1)'.*grd.hfacc(nic,:,1)',-500:20:500);set(gca,'FontSize',14)
-canom;cmapa(4);caxis([-150 150]);colorbar('FontSize',14); % format_ticks(gca,'^{\circ}','^{\circ}');
+caxis([-160 160]);colormap(bluewhitered(length(-160:20:160)-1));colorbar('FontSize',14); % format_ticks(gca,'^{\circ}','^{\circ}');
 title('Annual mean MITgcm Total Heat Forcing (W/m2, positive for heat gain)','FontSize',14,'FontWeight','bold'); ylabel('Latitude','FontSize',14); xlabel('Longitude','FontSize',14)
 orient landscape
 print -dpsc surface_heat_flux.ps
@@ -40,29 +40,29 @@ print -dpsc surface_heat_flux.ps
 scal=(360.*24.*60.*60)/1000;
 figure
 contourf(nlonc-360,grd.latc,surf.surForcS(nic,:,1)'.*grd.hfacc(nic,:,1)'.*scal,[-150:10:150]);set(gca,'FontSize',14)
-canom;cmapa(4);caxis([-80 80]);colorbar('FontSize',14); % format_ticks(gca,'^{\circ}','^{\circ}');
+caxis([-80 80]);colormap(bluewhitered(length(-80:10:80)-1));colorbar('FontSize',14); % format_ticks(gca,'^{\circ}','^{\circ}');
 title('Annual mean MITgcm Total Salinity Forcing (Kg/m2/yr, positive increases S)','FontSize',14,'FontWeight','bold'); ylabel('Latitude','FontSize',14); xlabel('Longitude','FontSize',14)
 orient landscape
 print -dpsc surface_salinity_flux.ps
 
 figure
 contourf(nlonc-360,grd.latc,nanmean(tave.Ttave(nic,:,grd.zc<depthlev),3)'.*grd.hfacc(nic,:,1)',-5:2.5:40);set(gca,'FontSize',14)
-caxis([-5 35]);colorbar('FontSize',14); % format_ticks(gca,'^{\circ}','^{\circ}');
+caxis([-5 35]);colormap(parula(length(-5:2.5:35)-1));colorbar('FontSize',14); % format_ticks(gca,'^{\circ}','^{\circ}');
 title('MITgcm SST (degC)','FontSize',14,'FontWeight','bold'); ylabel('Latitude','FontSize',14); xlabel('Longitude','FontSize',14)
 orient landscape
 print -dpsc surface_temperature.ps
 
 figure
 contourf(nlonc-360,grd.latc,nanmean(tave.Stave(nic,:,grd.zc<depthlev),3)'.*grd.hfacc(nic,:,1)',[20:0.25:40]);set(gca,'FontSize',14)
-caxis([30 37]);colorbar('FontSize',14); % format_ticks(gca,'^{\circ}','^{\circ}');
+caxis([30 37]);colormap(parula(length(30:0.25:37)-1));colorbar('FontSize',14); % format_ticks(gca,'^{\circ}','^{\circ}');
 title('MITgcm SSS','FontSize',14,'FontWeight','bold'); ylabel('Latitude','FontSize',14); xlabel('Longitude','FontSize',14)
 orient landscape
 print -dpsc surface_salinity.ps
 
 speed=sqrt(tave.uVeltave.*tave.uVeltave+tave.vVeltave.*tave.vVeltave);
 figure
-contourf(nlonc-360,grd.latc,nanmean(log10(speed(nic,:,grd.zc<depthlev)),3)'.*grd.hfacc(nic,:,1)',-5:0.25:2)
-caxis([-3 0]);colorbar('FontSize',14);
+contourf(nlonc-360,grd.latc,nanmean(speed(nic,:,grd.zc<depthlev),3)'.*grd.hfacc(nic,:,1)'.*100,0:2:20)
+caxis([0 20]);colormap(parula(length(0:2:20)-1));colorbar('FontSize',14);
 hold on
 quiver(nlonc(1:2:end)-360,grd.latc(1:2:end),nanmean(tave.uVeltave(nic(1:2:end),1:2:end,grd.zc<depthlev),3)'.*grd.hfacc(nic(1:2:end),1:2:end,1)',...
      nanmean(tave.vVeltave(nic(1:2:end),1:2:end,grd.zc<depthlev),3)'.*grd.hfacc(nic(1:2:end),1:2:end,1)',10,'k')

@@ -23,8 +23,10 @@ end
 if (mit_getparm('data','nTimeSteps')/(31104000/grd.deltattracer)) == 1
 %    disp('Loading one year')
     ktsteps=tavesteps.timesteps;
+    ktimsteps=tavesteps.tim;
 else
     ktsteps=tavesteps.timesteps(end);
+    ktimsteps=tavesteps.tim(end);
 %    disp('Loading last timestep')
 end
 
@@ -73,11 +75,14 @@ end
         % Calculate GM bolus velocities
         gm = rdmnc(strrep(tavesteps.filearr(2:end-1),'tave','gm_tave'),'Kwx','Kwy','Kwz',ktsteps);
         
-        [~,veddk,~]=mit_gmvel(gm.Kwx,gm.Kwy,grd.nx,grd.ny,grd.nz,1,grd.dxg,grd.dyg,grd.dz,grd.cmask,grd.umask,grd.vmask,grd.rac);
-        vresk=nanmean(vvelk+veddk,4);
+        Kwx=nanmean(gm.Kwx,4);
+        Kwy=nanmean(gm.Kwy,4);
+        
+        [~,veddk,~]=mit_gmvel(Kwx,Kwy,grd.nx,grd.ny,grd.nz,1,grd.dxg,grd.dyg,grd.dz,grd.cmask,grd.umask,grd.vmask,grd.rac);
+        vresk=vvelk+veddk;
     end
     
-    mitpsi=rdmnc(filename,'global_psi','atlantic_psi','pacific_psi','gbaro_psi',ktsteps);
+    mitpsi=rdmnc(filename,'global_psi','atlantic_psi','pacific_psi','gbaro_psi',ktimsteps);
     mitpsi.global_psi=nanmean(mitpsi.global_psi,3);
     mitpsi.atlantic_psi=nanmean(mitpsi.atlantic_psi,3);
     mitpsi.pacific_psi=nanmean(mitpsi.pacific_psi,3);
@@ -152,15 +157,11 @@ sigma_psi=mit_sigma_overturning(vres_on_density,hfacc_on_density,dx_on_density,d
 
 %% plot stream functions
 %
-figure % ('PaperOrientation','landscape');%('PaperPosition',[0.31 0.25 10.5 7.88],'PaperOrientation','landscape')
-clear sh
-%sh(1) = subplot(2,2,1);
+figure 
 otlev = [-50:5:50];
 global_psi_max=mitpsi.global_psi;
 contourf(grd.latg,-grd.zgpsi/1000,global_psi_max'*1e-6,otlev); 
-%lev_max=ceil(max(abs(global_psi_max(:))));
-lev_max=50;
-canom; caxis([-1 1].*lev_max); colormap(bluewhitered(length(otlev)-1)); colorbar;
+caxis([-1 1].*max(otlev)); colormap(bluewhitered(length(otlev)-1)); colorbar;
 hold on
 [cs h1] = contour(grd.latg,-grd.zgpsi/1000,global_psi_max'*1e-6,[0 0]); 
 %clh1 = clabel(cs);
@@ -185,12 +186,10 @@ atlantic_psi_max=mitpsi.atlantic_psi;
 pacific_psi_max=mitpsi.pacific_psi;
 contourf(grd.latg,-grd.zgpsi/1000,atlantic_psi_max'*1e-6,otlev); 
 %caxis([-1 1]*max(abs(atlantic_psi_max(:))*1.e-6)); ch(1) = colorbar;
-%lev_max=ceil(max(abs([atlantic_psi_max(:);pacific_psi_max(:)])));
-lev_max=50;
-canom; caxis([-1 1].*lev_max); colormap(bluewhitered(length(otlev)-1)); ch(1) = colorbar('YTick',otlev);
+%max(otlev)=ceil(max(abs([atlantic_psi_max(:);pacific_psi_max(:)])));
+caxis([-1 1].*max(otlev)); colormap(bluewhitered(length(otlev)-1)); ch(1) = colorbar('YTick',otlev);
 set(ch(1),'Position',[0.917, 0.588, 0.03 ,0.337])
 hold on;
-%canom;cmapa(4)
 [cs h2] = contour(grd.latg,-grd.zgpsi/1000,atlantic_psi_max'*1e-6,[0 0]); 
 %clh2 = clabel(cs);
 hold off
@@ -212,12 +211,10 @@ set(gca,'XLim',[min(grd.latc) max(grd.latc)],'XTick',[-80:20:80],'FontSize',16)
 sh(3) = subplot(212);
 pacific_psi_max=mitpsi.pacific_psi;
 contourf(grd.latg,-grd.zgpsi/1000,pacific_psi_max'*1e-6,otlev); 
-%lev_max=max(abs([atlantic_psi_max(:);pacific_psi_max(:)]));
-canom; caxis([-1 1].*lev_max); colormap(bluewhitered(length(otlev)-1)); ch(2) = colorbar;
+caxis([-1 1].*max(otlev)); colormap(bluewhitered(length(otlev)-1)); ch(2) = colorbar;
 %caxis([-1 1]*max(abs(pacific_psi_max(:)))*1.e-6); ch(2) = colorbar;
 set(ch(2),'Position',[0.917, 0.114, 0.03 ,0.337])
 hold on; 
-%canom;cmapa(4)
 [cs h3] = contour(grd.latg,-grd.zgpsi/1000,pacific_psi_max'*1e-6,[0 0]); 
 set(h1,'LineWidth',2,'LineColor','k')
 %clh3 = clabel(cs);
@@ -249,14 +246,12 @@ bstlev = [-200:20:200];
 figure
 baro_psi_max=mitpsi.gbaro_psi;
 contourf(grd.long,grd.latg,baro_psi_max'*1e-6,bstlev); 
-%lev_max=ceil(max(abs(baro_psi_max(:))));
-lev_max=200;
-canom; caxis([-1 1].*lev_max); colormap(bluewhitered(length(bstlev)-1)); colorbar('YTick',bstlev);
-%caxis([-1 1]*max(abs(mitpsi.gbaro_psi(:))*1.e-6));canom;cmapa(4);colorbar
+caxis([-1 1].*max(bstlev)); colormap(bluewhitered(length(bstlev)-1)); colorbar('YTick',bstlev);
+%caxis([-1 1]*max(abs(mitpsi.gbaro_psi(:))*1.e-6));colorbar
 %hold on
 %[cs h3] = contour(grd.long,grd.latg,baro_psi_max'*1e-6,[0 0]); 
 %[cs h]=contour(grd.long,grd.latg,baro_psi_max'*1e-6,bstlev);
-%set(h,'edgecolor','k');canom;cmapa(4)
+%set(h,'edgecolor','k');
 % if ~isempty(h); 
 %   clh = clabel(cs,h); 
 %   set(clh,'Fontsize',8);
@@ -274,9 +269,7 @@ print -dpsc barotropic_streamfunction.ps
 if size(sigma_psi,2)==size(ri,2)
 figure
 contourf(grd.latc,ri,sigma_psi'.*1e-6,[-50:5:50])
-lev_max=50;
-caxis([-1 1].*lev_max); colormap(bluewhitered(length(-lev_max:5:lev_max)-1));colorbar;
-%canom;cmapa(4);colorbar
+caxis([-1 1].*max(otlev)); colormap(bluewhitered(length(otlev)-1));colorbar;
 set(gca,'ydir','rev','clim',[-50 50])
 hold on
 plot(grd.latc,(nanmin(mit_sigma25(:,:,1))),'color',[0.5 0.5 0.5],'LineWidth',2)% min surface density

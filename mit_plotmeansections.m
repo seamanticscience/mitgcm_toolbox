@@ -96,23 +96,23 @@ if length(tavesteps.tim) > 1
         clear sh
         sh(1) = subplot(2,2,1);
         contourf(tavesteps.tim,-grd.zc,mdt,20);
-        caxis([-1 1]*max(abs(caxis))); shading flat; colorbar('v');canom;cmapa(4)
+        caxis([-1 1]*max(abs(caxis))); colormap(bluewhitered(20));colorbar('v')
         title('T-T_{init} horizontally averaged')
         xlabel(['Time [' tavesteps.timeunit ']']); ylabel('Depth [m]')
         sh(2) = subplot(2,2,2);
         contourf(tavesteps.tim,-grd.zc,mds,20);
-        caxis([-1 1]*max(abs(caxis))); shading flat; colorbar('v');canom;cmapa(4)
+        caxis([-1 1]*max(abs(caxis))); colormap(bluewhitered(20));colorbar('v')
         title('S-S_{init} horizontally averaged')
         xlabel(['Time [' tavesteps.timeunit ']']); ylabel('Depth [m]')
         %
         sh(3) = subplot(2,2,3);
         contourf(tavesteps.tim,-grd.zc,mdtt,20);
-        shading flat; colorbar('v')
+        caxis([-1 1]*max(abs(caxis))); colormap(bluewhitered(20));colorbar('v')
         title('|T-T_{init}| horizontally averaged');
         xlabel(['Time [' tavesteps.timeunit ']']); ylabel('Depth [m]')
         sh(4) = subplot(2,2,4);
         contourf(tavesteps.tim,-grd.zc,mdss,20);
-        shading flat; colorbar('v')
+        caxis([-1 1]*max(abs(caxis))); colormap(bluewhitered(20));colorbar('v')
         title('|S-S_{init}| horizontally averaged')
         xlabel(['Time [' tavesteps.timeunit ']']); ylabel('Depth [m]')
         set(sh,'layer','top');
@@ -205,12 +205,14 @@ for k = length(tavesteps.tim)
     figure
     sh(1) = subplot(211);
     [cs h] = contourf(grd.latc,-grd.zc,(tzm_glo)',[-5:5:40]);
+    colormap(parula(length(-5:5:40)));colorbar;
     title('\theta  [degC]: global ocean')
     set(gca,'clim',[-5 40])
-    colorbar;
+    
     
     sh(2) = subplot(212);
     [cs h] = contourf(grd.latc,-grd.zc,(szm_glo)',[15:0.5:40]);
+    colormap(parula(length(15:0.5:40)));colorbar;
     title('S  [PSU]: global ocean')
     set(gca,'clim',[30 40])
     colorbar;
@@ -222,14 +224,14 @@ for k = length(tavesteps.tim)
     sh(1) = subplot(211);
     [cs h] = contourf(grd.latc,-grd.zc,(tzm_glo-tdzm_glo)',tlev);
     title('\theta-\theta_{lev} [degC]: global ocean')
-    set(sh(1),'clim',[tlev(1) tlev(end)])
-    colorbar;canom;cmapa(4)
+    set(sh(1),'clim',[tlev(1) tlev(end)]);
+    caxis([tlev(1) tlev(end)]);colormap(bluewhitered(length(tlev)));colorbar
     
     sh(2) = subplot(212);
     [cs h] = contourf(grd.latc,-grd.zc,(szm_glo-sdzm_glo)',slev);
     title('S-S_{lev} [PSU]: global ocean')
     set(sh(2),'clim',[slev(1) slev(end)])
-    colorbar;canom;cmapa(4)
+    caxis([slev(1) slev(end)]);colormap(bluewhitered(length(slev)));colorbar
     orient landscape
     print -dpsc ts_zonal_anomaly_sections.ps
     
@@ -237,32 +239,32 @@ for k = length(tavesteps.tim)
     figure %('PaperPosition',[0.25 0.368552 8 10.2629])
     sh(3) = subplot(321);
     [cs h] = contourf(grd.latc,-grd.zc,(tzm_atl)',[-5:5:40]);
-    colorbar
+    colormap(parula(length(-5:5:40)));colorbar;
     title('\theta [degC]: atlantic ocean')
     set(gca,'clim',[-5 40])
     sh(5) = subplot(323);
     [cs h] = contourf(grd.latc,-grd.zc,(tzm_pac)',[-5:5:40]);
-    colorbar;
+    colormap(parula(length(-5:5:40)));colorbar;
     title('\theta [degC]: pacific ocean')
     set(gca,'clim',[-5 40])
     sh(7) = subplot(325);
     [cs h] = contourf(grd.latc,-grd.zc,(tzm_ind)',[-5:5:40]);
-    colorbar
+    colormap(parula(length(-5:5:40)));colorbar;
     title('\theta [degC]: indian ocean')
     set(gca,'clim',[-5 40])
     
     sh(4) = subplot(322);
     [cs h] = contourf(grd.latc,-grd.zc,(szm_atl)',[15:0.5:40]);
-    colorbar;set(gca,'clim',[30 40])
+    colormap(parula(length(15:0.5:40)));colorbar;set(gca,'clim',[30 40])
     title('S [PSU]: atlantic ocean')
     sh(6) = subplot(324);
     [cs h] = contourf(grd.latc,-grd.zc,(szm_pac)',[15:0.5:40]);
-    colorbar;set(gca,'clim',[30 40])
+    colormap(parula(length(15:0.5:40)));colorbar;set(gca,'clim',[30 40])
     title('S [PSU]: pacific ocean')
     sh(8) = subplot(326);
     [cs h] = contourf(grd.latc,-grd.zc,(szm_ind)',[15:0.5:40]);
     title('S [PSU]: indian ocean')
-    set(gca,'clim',[30 40])
+    colormap(parula(length(15:0.5:40)));colorbar;set(gca,'clim',[30 40])
     colorbar;
     orient landscape
     print -dpsc ts_basin_sections.ps
@@ -271,32 +273,31 @@ for k = length(tavesteps.tim)
     figure %('PaperPosition',[0.25 0.368552 8 10.2629])
     sh(3) = subplot(321);
     [cs h] = contourf(grd.latc,-grd.zc,(tzm_atl-tdzm_atl)',tlev);
-    colorbar;canom;cmapa(4)
+    caxis([tlev(1) tlev(end)]);colormap(bluewhitered(length(tlev)));colorbar
     title('\theta-\theta_{lev} [degC]: atlantic ocean')
-    
     sh(5) = subplot(323);
     [cs h] = contourf(grd.latc,-grd.zc,(tzm_pac-tdzm_pac)',tlev);
-    colorbar;canom;cmapa(4)
+    caxis([tlev(1) tlev(end)]);colormap(bluewhitered(length(tlev)));colorbar
     title('\theta-\theta_{lev} [degC]: pacific ocean')
     sh(7) = subplot(325);
     [cs h] = contourf(grd.latc,-grd.zc,(tzm_ind-tdzm_ind)',tlev);
-    colorbar;canom;cmapa(4)
+    caxis([tlev(1) tlev(end)]);colormap(bluewhitered(length(tlev)));colorbar
     title('\theta-\theta_{lev} [degC]: indian ocean')
     set(sh(3:2:end),'clim',[tlev(1) tlev(end)])
     
     sh(4) = subplot(322);
     [cs h] = contourf(grd.latc,-grd.zc,(szm_atl-sdzm_atl)',slev);
-    colorbar;canom;cmapa(4)
+    caxis([slev(1) slev(end)]);colormap(bluewhitered(length(slev)));colorbar
     title('S-S_{lev} [PSU]: atlantic ocean')
     sh(6) = subplot(324);
     [cs h] = contourf(grd.latc,-grd.zc,(szm_pac-sdzm_pac)',slev);
-    colorbar;canom;cmapa(4)
+    caxis([slev(1) slev(end)]);colormap(bluewhitered(length(slev)));colorbar
     title('S-S_{lev} [PSU]: pacific ocean')
     sh(8) = subplot(326);
     [cs h] = contourf(grd.latc,-grd.zc,(szm_ind-sdzm_ind)',slev);
+    caxis([slev(1) slev(end)]);colormap(bluewhitered(length(slev)));colorbar
     title('S-S_{lev} [PSU]: indian ocean')
     set(sh(4:2:end),'clim',[slev(1) slev(end)])
-    colorbar;canom;cmapa(4)
     set(sh,'layer','top')
     orient landscape
     print -dpsc ts_basin_anomaly_sections.ps

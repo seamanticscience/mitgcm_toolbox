@@ -35,7 +35,7 @@ uazm = mit_zonalmean(ua,grd.atlantic_hfacw,grd.dxg);
 % end
 % 
 % caxua = [min(uazm(:)) max(uazm(:))];
- ualev = -1:.025:1;
+ ualev = -1:.01:1;
 % if max(abs(caxua)) < .1
 %   ualev = .5*ualev;
 % end
@@ -63,25 +63,32 @@ sh(1) = subplot(4,2,1);
 contourf(yaxis,zaxis,upzm',uplev);colorbar
 title(sh(1),'Pacific Ocean: zonal average') 
 sh(3) = subplot(4,2,3);
-contourf(yaxis,zaxis,sq(up(ixpw,:,:))',uplev);colorbar
+contourf(yaxis,zaxis,sq(up(ixpw,:,:))',uplev);
+caxis([-1 1]);colormap(bluewhitered(length(uplev)-1));colorbar
 title(sh(3),['section at ',num2str(grd.long(ixpw),3),'^{\circ}E'])
 sh(5) = subplot(4,2,5);
-contourf(yaxis,zaxis,sq(up(ixpc,:,:))',uplev);colorbar
+contourf(yaxis,zaxis,sq(up(ixpc,:,:))',uplev);
+caxis([-1 1]);colormap(bluewhitered(length(uplev)-1));colorbar
 title(sh(5),['section at ',num2str(grd.long(ixpc),3),'^{\circ}E'])
 sh(7) = subplot(4,2,7);
-contourf(yaxis,zaxis,sq(up(ixpe,:,:))',uplev);colorbar
+contourf(yaxis,zaxis,sq(up(ixpe,:,:))',uplev);
+caxis([-1 1]);colormap(bluewhitered(length(uplev)-1));colorbar
 title(sh(7),['section at ',num2str(grd.long(ixpe),3),'^{\circ}E'])
 sh(2) = subplot(4,2,2);
-contourf(yaxis,zaxis,uazm',ualev);colorbar
+contourf(yaxis,zaxis,uazm',ualev);
+caxis([-1 1]);colormap(bluewhitered(length(ualev)-1));colorbar
 title(sh(2),'Atlantic Ocean: zonal average') 
 sh(4) = subplot(4,2,4);
-contourf(yaxis,zaxis,sq(ua(ixaw,:,:))',ualev);colorbar
+contourf(yaxis,zaxis,sq(ua(ixaw,:,:))',ualev);
+caxis([-1 1]);colormap(bluewhitered(length(ualev)-1));colorbar
 title(sh(4),['section at ',num2str(grd.long(ixaw),3),'^{\circ}E'])
 sh(6) = subplot(4,2,6);
-contourf(yaxis,zaxis,sq(ua(ixac,:,:))',ualev);colorbar
+contourf(yaxis,zaxis,sq(ua(ixac,:,:))',ualev);
+caxis([-1 1]);colormap(bluewhitered(length(ualev)-1));colorbar
 title(sh(6),['section at ',num2str(grd.long(ixac),3),'^{\circ}E'])
 sh(8) = subplot(4,2,8);
-contourf(yaxis,zaxis,sq(ua(ixae,:,:))',ualev);colorbar
+contourf(yaxis,zaxis,sq(ua(ixae,:,:))',ualev);
+caxis([-1 1]);colormap(bluewhitered(length(ualev)-1));colorbar
 title(sh(8),['section at ',num2str(grd.long(ixae),3),'^{\circ}E'])
 set(gca,'CLim',[-0.5 0.5])
 
@@ -93,6 +100,5 @@ set(sh,'layer','top')
 %set(sh(2:2:end),'clim',[ualev(1) ualev(end)])
 %set(gcf,'currentAxes',sh(end-1));colorbar
 %set(gcf,'currentAxes',sh(end));colorbar
-canom;cmapa(4)
 orient portrait
 print -dpsc zonal_velocity_sections.ps
