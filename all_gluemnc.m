@@ -58,7 +58,7 @@ system('find . -type l  -exec unlink {} \;');
 if exist('gluemnc_cat_timeseries.m','file') % prerequisite
     datenow=datestr(now,'yyyymmdd');
     itern=nan(size(iter,1),1);
-    for i=1:length(iter);
+    for i=1:size(iter,1);
         itern(i)=str2double(iter(i,:));
     end
     
