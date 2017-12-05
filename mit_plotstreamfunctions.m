@@ -23,10 +23,8 @@ end
 if (mit_getparm('data','nTimeSteps')/(31104000/grd.deltattracer)) == 1
 %    disp('Loading one year')
     ktsteps=tavesteps.timesteps;
-    ktimsteps=tavesteps.tim;
 else
     ktsteps=tavesteps.timesteps(end);
-    ktimsteps=tavesteps.tim(end);
 %    disp('Loading last timestep')
 end
 
@@ -82,7 +80,7 @@ end
         vresk=vvelk+veddk;
     end
     
-    mitpsi=rdmnc(filename,'global_psi','atlantic_psi','pacific_psi','gbaro_psi',ktimsteps);
+    mitpsi=rdmnc(filename,'global_psi','atlantic_psi','pacific_psi','gbaro_psi',ktsteps);
     mitpsi.global_psi=nanmean(mitpsi.global_psi,3);
     mitpsi.atlantic_psi=nanmean(mitpsi.atlantic_psi,3);
     mitpsi.pacific_psi=nanmean(mitpsi.pacific_psi,3);
@@ -182,17 +180,13 @@ print -dpsc global_overturning.ps
 figure %('PaperOrientation','landscape');
 %sh(2) = subplot(2,2,2);
 sh(2) = subplot(211);
-atlantic_psi_max=mitpsi.atlantic_psi;
-pacific_psi_max=mitpsi.pacific_psi;
-contourf(grd.latg,-grd.zgpsi/1000,atlantic_psi_max'*1e-6,otlev); 
-%caxis([-1 1]*max(abs(atlantic_psi_max(:))*1.e-6)); ch(1) = colorbar;
-%max(otlev)=ceil(max(abs([atlantic_psi_max(:);pacific_psi_max(:)])));
-caxis([-1 1].*max(otlev)); colormap(bluewhitered(length(otlev)-1)); ch(1) = colorbar('YTick',otlev);
+contourf(grd.latg,-grd.zgpsi/1000,mitpsi.atlantic_psi'*1e-6,otlev); 
+caxis([-1 1].*max(otlev)); colormap(bluewhitered(length(otlev)-1)); ch(1) = colorbar('YTick',otlev(1:2:end));
 set(ch(1),'Position',[0.917, 0.588, 0.03 ,0.337])
-hold on;
-[cs h2] = contour(grd.latg,-grd.zgpsi/1000,atlantic_psi_max'*1e-6,[0 0]); 
+%hold on;
+%[cs h2] = contour(grd.latg,-grd.zgpsi/1000,atlantic_psi_max'*1e-6,[0 0]); 
 %clh2 = clabel(cs);
-hold off
+%hold off
 % psimax = max(atlantic_psi_max(:,5:end));
 % %iz = find(abs(atlantic_psi(13,:)-psimax)<=1e-4);
 % [iy iz] = find(abs(atlantic_psi_max(:)-psimin)<=1e-4);
@@ -209,13 +203,12 @@ xlabel('Latitude','FontSize',16);ylabel('Depth [km]','FontSize',16)
 set(gca,'XLim',[min(grd.latc) max(grd.latc)],'XTick',[-80:20:80],'FontSize',16)
 %sh(3) = subplot(2,2,3);
 sh(3) = subplot(212);
-pacific_psi_max=mitpsi.pacific_psi;
-contourf(grd.latg,-grd.zgpsi/1000,pacific_psi_max'*1e-6,otlev); 
-caxis([-1 1].*max(otlev)); colormap(bluewhitered(length(otlev)-1)); ch(2) = colorbar;
+contourf(grd.latg,-grd.zgpsi/1000,mitpsi.pacific_psi'*1e-6,otlev); 
+caxis([-1 1].*max(otlev)); colormap(bluewhitered(length(otlev)-1)); ch(2) = colorbar('YTick',otlev(1:2:end));
 %caxis([-1 1]*max(abs(pacific_psi_max(:)))*1.e-6); ch(2) = colorbar;
 set(ch(2),'Position',[0.917, 0.114, 0.03 ,0.337])
-hold on; 
-[cs h3] = contour(grd.latg,-grd.zgpsi/1000,pacific_psi_max'*1e-6,[0 0]); 
+%hold on; 
+%[cs h3] = contour(grd.latg,-grd.zgpsi/1000,pacific_psi_max'*1e-6,[0 0]); 
 set(h1,'LineWidth',2,'LineColor','k')
 %clh3 = clabel(cs);
 hold off
@@ -223,9 +216,9 @@ set(gca,'FontSize',16)
 title('Pacific overturning streamfunction [Sv]','FontSize',16)
 xlabel('Latitude','FontSize',16);ylabel('Depth [km]','FontSize',16)
 set(gca,'XLim',[min(grd.latc) max(grd.latc)],'XTick',[-80:20:80],'FontSize',16)
-if ~isempty([h2;h3])
-  set([h2;h3],'LineWidth',2,'EdgeColor','k');
-end
+% if ~isempty([h2;h3])
+%   set([h2;h3],'LineWidth',2,'EdgeColor','k');
+% end
 orient landscape
 print -dpsc atlantic_pacific_overturning.ps
 
