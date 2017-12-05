@@ -251,13 +251,24 @@ end
     nc_varput(filename,'pot_mask',pacific_psi_mask);
 
 % Add floating_point missing_value to all variables
-eval(['!ncatted -O -a missing_value,,c,f,-1.0e34 ',filename])
+[nohasnco,ncattedpath]=system('which ncatted'); % return value is 0 if ncatted is on the path, 1 otherwise
+if nohasnco
+    %use snctools
+    file_info = nc_info(filename);
+    for ff=1:length(file_info.Dataset)
+        nc_attput(filename,file_info.Dataset(ff).Name,'missing_value',-1.0e34)
+    end
+else
+    %use ncatted, which I think is faster?
+    eval(['!ncatted -O -a missing_value,,c,d,-1.0e34 ',filename])
+end
 
 if ~isempty(strfind(lower(os),'darwin'))
     % only do wait handles on OSX
     close(wait_handle)
 end
 
+% Old netcdf toolbox way
 % nc=netcdf(filename,'write');
 % nc.the_run_name=attributes.global.the_run_name;
 % nc.MITgcm_version=attributes.global.MITgcm_version;
@@ -279,8 +290,3 @@ end
 % nc.Ny=attributes.global.Ny;
 % nc.Nr=attributes.global.Nr;
 % close(nc);
-
-%%clear global_psi atlantic_psi baro_psi pacific_psi ...
-%    global_psi_mask atlantic_psi_mask baro_psi_mask pacific_psi_mask...
-%    global_temp atlantic_temp baro_temp pacific_temp ...
-%    atlosf pacosf globosf glob_baro_psi Mask psi_data
