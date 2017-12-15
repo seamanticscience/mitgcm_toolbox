@@ -31,7 +31,7 @@ ligand_bar=-10e-7:10e-7:11e-6;
 % anom_o2_bar =-25:5:25;
 % anom_fe_bar =-1e-3:1e-4:1e-3;
 
-for i=7 %1:nptr
+for i=1:nptr
     ptr_name=mit_getparm('data.ptracers',['PTRACERS_names(',num2str(i),')']);
     ptr=ptr_tave.(ptr_name);
     if exist([ptr_name,'_bar'],'var');
