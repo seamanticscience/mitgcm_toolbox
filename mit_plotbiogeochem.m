@@ -22,7 +22,7 @@ po4_bar=-2.5e-4:2.5e-4:3.75e-3;
 o2_bar =-0.02:0.02:0.42;
 fe_bar =-1e-7:1e-7:1.4e-6;
 cdis_bar= -32e-3:2e-3:32e-3;
-ligand_bar=-10e-7:10e-7:11e-6;
+ligand_bar=-2e-7:2e-7:2.4e-6;
 % 
 % anom_dic_bar=-30:5:30;
 % anom_alk_bar=-30:5:30;
